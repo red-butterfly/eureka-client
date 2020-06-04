@@ -16,6 +16,9 @@ type Config struct {
 	DurationInSecs int
 	// 应用名称
 	App string
+
+	// 注册的IP
+	Ip 	string
 	// 端口
 	Port     int
 	Metadata map[string]interface{}
@@ -97,12 +100,12 @@ type LeaseInfo struct {
 }
 
 // NewInstance 创建服务实例
-func NewInstance(ip string, config *Config) *Instance {
+func NewInstance(config *Config) *Instance {
 	instance := &Instance{
-		InstanceID: fmt.Sprintf("%s:%s:%d", ip, config.App, config.Port),
-		HostName:   ip,
+		InstanceID: fmt.Sprintf("%s:%d", config.Ip, config.Port),
+		HostName:   config.Ip,
 		App:        config.App,
-		IPAddr:     ip,
+		IPAddr:     config.Ip,
 		Port: &Port{
 			Port:    config.Port,
 			Enabled: "true",
@@ -124,7 +127,7 @@ func NewInstance(ip string, config *Config) *Instance {
 		// 元数据
 		Metadata: config.Metadata,
 	}
-	instance.HomePageURL = fmt.Sprintf("http://%s:%d", ip, config.Port)
-	instance.StatusPageURL = fmt.Sprintf("http://%s:%d/info", ip, config.Port)
+	instance.HomePageURL = fmt.Sprintf("http://%s:%d", config.Ip, config.Port)
+	instance.StatusPageURL = fmt.Sprintf("http://%s:%d/info", config.Ip, config.Port)
 	return instance
 }

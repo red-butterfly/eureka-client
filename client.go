@@ -129,7 +129,7 @@ func (c *Client) handleSignal() {
 // NewClient 创建客户端
 func NewClient(config *Config) *Client {
 	defaultConfig(config)
-	config.instance = NewInstance(getLocalIP(), config)
+	config.instance = NewInstance(config)
 	return &Client{Config: config}
 }
 
@@ -150,6 +150,9 @@ func defaultConfig(config *Config) {
 		config.App = "server"
 	} else {
 		config.App = strings.ToLower(config.App)
+	}
+	if config.Ip == "" {
+		config.Ip = getLocalIP()
 	}
 	if config.Port == 0 {
 		config.Port = 80
