@@ -60,6 +60,13 @@ func (c *Client) heartbeat() {
 	for {
 		if c.Running {
 			if err := c.doHeartbeat(); err != nil {
+				if err == ErrNotFound {
+					log.Println("heartbeat Not Found, need register")
+					if err = c.doRegister(); err != nil {
+						log.Printf("do register error: %s\n", err)
+					}
+					continue
+				}
 				log.Println(err)
 			}
 		} else {

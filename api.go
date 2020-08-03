@@ -1,10 +1,17 @@
 package eureka_client
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/xuanbo/requests"
+)
+
+var (
+	// ErrNotFound 实例不存在，需要重新注册
+	ErrNotFound = errors.New("not found")
 )
 
 // 与eureka服务端rest交互
@@ -68,9 +75,16 @@ func Heartbeat(zone, app, instanceID string) error {
 	params := url.Values{
 		"status": {"UP"},
 	}
-	result := requests.Put(u).Params(params).Send().StatusOk()
+	result := requests.Put(u).Params(params).Send()
 	if result.Err != nil {
 		return fmt.Errorf("Heartbeat failed, error: %s", result.Err)
+	}
+	// 心跳 404 说明eureka server重启过，需要重新注册
+	if result.Resp.StatusCode == http.StatusNotFound {
+		return ErrNotFound
+	}
+	if result.Resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Heartbeat failed, invalid status code: %d", result.Resp.StatusCode)
 	}
 	return nil
 }
